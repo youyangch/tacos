@@ -3,7 +3,9 @@ package com.belence.tacos.controller;
 import com.belence.tacos.entity.Ingredient;
 import com.belence.tacos.entity.Taco;
 import com.belence.tacos.entity.TacoOrder;
+import com.belence.tacos.repository.IngredientRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.belence.tacos.entity.Ingredient.Type;
 
@@ -23,20 +26,16 @@ import javax.validation.Valid;
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
 
+    private final IngredientRepository ingredientRepository;
+
+    @Autowired
+    public DesignTacoController(IngredientRepository ingredientRepository){
+        this.ingredientRepository = ingredientRepository;
+    }
+
     @ModelAttribute // 这个方法也会在请求处理的时候被调用，构建一个包含Ingredient的配料列表并放到模型中
     public void addIngredientsToModel(Model model){
-        List<Ingredient> ingredients = Arrays.asList(
-                new Ingredient("FLTO","Flour Tortilla", Ingredient.Type.WRAP),
-                new Ingredient("COTO","Corn Tortilla", Ingredient.Type.WRAP),
-                new Ingredient("GRBF","Ground Beef", Ingredient.Type.PROTEIN),
-                new Ingredient("CRAN","Carnitas", Ingredient.Type.PROTEIN),
-                new Ingredient("TMTO","Diced Tomatoes", Ingredient.Type.VEGGIES),
-                new Ingredient("LETC","Lettuce", Ingredient.Type.VEGGIES),
-                new Ingredient("CHED","Cheddar", Ingredient.Type.CHEESE),
-                new Ingredient("JACK","Monterrey Jack", Ingredient.Type.CHEESE),
-                new Ingredient("SLSA","Salsa", Ingredient.Type.SAUCE),
-                new Ingredient("SRCR","Sour Cream", Ingredient.Type.SAUCE)
-                );
+        Iterable<Ingredient> ingredients = ingredientRepository.finaAll();
 
         Type[] types = Ingredient.Type.values();
         for(Type type:types){
@@ -78,8 +77,8 @@ public class DesignTacoController {
         return "redirect:/orders/current";
     }
 
-    private Iterable<Ingredient> filterByType(List<Ingredient> ingredients, Type type){
-        return ingredients.stream().filter(x -> x.getType().equals(type)).collect(Collectors.toList());
+    private Iterable<Ingredient> filterByType(Iterable<Ingredient> ingredients, Type type){
+        return StreamSupport.stream(ingredients.spliterator(),false).filter(x -> x.getType().equals(type)).collect(Collectors.toList());
     }
 
 }

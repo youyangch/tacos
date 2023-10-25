@@ -32,6 +32,7 @@ public class JdbcIngredientRepository implements IngredientRepository {
 
     @Override
     public Optional<Ingredient> findById(String id){
+        // 最终参数(final argument)的形式接收查询中所需的任意参数("?" id)
         List<Ingredient> results = jdbcTemplate.query("select id,name,type from Ingredient where id = ?",this::mapRowToIngredient,id);
 
         return results.isEmpty() ? Optional.empty():Optional.of(results.get(0));
@@ -46,6 +47,7 @@ public class JdbcIngredientRepository implements IngredientRepository {
     }
 
 
+    // Spring RowMapper的一个实现（用来将结果集中的每行数据映射为一个对象）
     private Ingredient mapRowToIngredient(ResultSet row, int rowNum) throws SQLException {
         return new Ingredient(row.getString("id")
                 ,row.getString("name")

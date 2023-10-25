@@ -26,6 +26,10 @@ public class JdbcOrderRepository implements OrderRepository {
         this.jdbcOperations = jdbcOperations;
     }
 
+    /**
+     * 使用 GeneratedKeyHolder(),确定 id 的值
+     * GeneratedKeyHolder(), 需要与 prepared statement 协作
+     * */
     @Override
     @Transactional
     public TacoOrder save(TacoOrder order){
@@ -52,7 +56,7 @@ public class JdbcOrderRepository implements OrderRepository {
                         order.getPlacedAt()
                 )
         );
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder(); // 获取 orderId
         jdbcOperations.update(psc,keyHolder);
         long orderId = keyHolder.getKey().longValue();
         order.setId(orderId);
@@ -80,12 +84,12 @@ public class JdbcOrderRepository implements OrderRepository {
                 orderKey
                 ));
 
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder(); // 获取tacoId
         jdbcOperations.update(psc,keyHolder);
         long tacoId = keyHolder.getKey().longValue();
         taco.setId(tacoId);
 
-
+        saveIngredientRefs(tacoId,taco.getIngredients());
 
         return tacoId;
     }

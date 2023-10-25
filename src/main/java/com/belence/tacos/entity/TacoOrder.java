@@ -1,17 +1,28 @@
 package com.belence.tacos.entity;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class TacoOrder {
+@Table // @Table("Taco_Cloud_Order") 将映射到 Taco_Cloud_Order 表
+public class TacoOrder implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @Id // @Id 可以让 Spring data 知道哪个字段代表了对象的唯一标识，Spring Data JDBC 才知道如何持久化它们
     @NotBlank(message = "Delivery name is required")
+    // @Column("customer_name") deliveryName 会映射到 customer_name 的列上
+    // @Column 默认映射为 delivery_name
     private String deliveryName;
 
     @NotBlank(message = "Street is required")
